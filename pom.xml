@@ -79,13 +79,6 @@
             <version>${logback-classic.version}</version>
         </dependency>
 
-        <!-- appsuite-core -->
-        <dependency>
-            <groupId>com.devamatre.appsuite</groupId>
-            <artifactId>appsuite-core</artifactId>
-            <version>${appsuite-core.version}</version>
-        </dependency>
-
         <!-- https://mvnrepository.com/artifact/org.projectlombok/lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
