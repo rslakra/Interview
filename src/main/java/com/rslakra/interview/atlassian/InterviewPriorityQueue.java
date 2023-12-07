@@ -86,7 +86,6 @@ public class InterviewPriorityQueue implements MostPopular {
         popularityTracker.decreasePopularity(7);
         popularityTracker.decreasePopularity(7);
         popularityTracker.decreasePopularity(8);
-        System.out.println(
-            popularityTracker.mostPopular());        // returns -1 since there is no content with popularity greater than 0
+        System.out.println(popularityTracker.mostPopular());        // returns -1 since there is no content with popularity greater than 0
     }
 }
