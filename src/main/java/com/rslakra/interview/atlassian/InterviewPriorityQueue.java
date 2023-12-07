@@ -1,4 +1,4 @@
-package com.devamatre.interview;
+package com.rslakra.interview.atlassian;
 
 import java.util.Optional;
 import java.util.PriorityQueue;

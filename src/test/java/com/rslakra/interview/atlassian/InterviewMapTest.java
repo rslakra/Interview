@@ -1,4 +1,4 @@
-package com.devamatre.interview;
+package com.rslakra.interview.atlassian;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

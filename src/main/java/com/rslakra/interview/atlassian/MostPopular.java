@@ -1,4 +1,4 @@
-package com.devamatre.interview;
+package com.rslakra.interview.atlassian;
 
 /**
  * @author Rohtash Lakra
