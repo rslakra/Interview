@@ -45,8 +45,8 @@ jobs:
         run: mkdir staging && cp target/*.jar staging
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
-      - name: Update Dependency Snapshot
-        uses: advanced-security/maven-dependency-submission-action@v3
+#      - name: Update Dependency Snapshot
+#        uses: advanced-security/maven-dependency-submission-action@v3
 
       - uses: actions/upload-artifact@v3
         with:
