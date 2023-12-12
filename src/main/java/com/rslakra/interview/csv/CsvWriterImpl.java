@@ -74,8 +74,8 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
         }
 
         return Stream.of(csvLine(header), contentToCsvLines(), csvLine(footer))
-            .filter(Utils::isNotEmpty)
-            .collect(Collectors.joining(lineSeparator));
+                .filter(Utils::isNotEmpty)
+                .collect(Collectors.joining(lineSeparator));
     }
 
     private String csvLine(List<?> content) {
@@ -83,9 +83,9 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
             return CsvUtils.EMPTY;
         }
         return content.stream()
-            .map(Object::toString)
-            .map(this::csvCell)
-            .collect(Collectors.joining(delimiter.toString()));
+                .map(Object::toString)
+                .map(this::csvCell)
+                .collect(Collectors.joining(delimiter.toString()));
     }
 
     private String contentToCsvLines() {
@@ -93,25 +93,29 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
             return CsvUtils.EMPTY;
         }
         return content.stream()
-            .map(mapper)
-            .map(this::csvLine)
-            .collect(Collectors.joining(lineSeparator));
+                .map(mapper)
+                .map(this::csvLine)
+                .collect(Collectors.joining(lineSeparator));
     }
 
-    private String csvCell(String string) {
-        if (string == null) {
+    /**
+     * @param text
+     * @return
+     */
+    private String csvCell(String text) {
+        if (text == null) {
             return CsvUtils.EMPTY;
         }
 
-        string = string.replace(CsvUtils.DOUBLE_QUOTE_STRING,
-                                CsvUtils.DOUBLE_QUOTE_STRING + CsvUtils.DOUBLE_QUOTE_STRING);
+        text = text.replace(CsvUtils.DOUBLE_QUOTE_STRING,
+                CsvUtils.DOUBLE_QUOTE_STRING + CsvUtils.DOUBLE_QUOTE_STRING);
 
         // check if double_quote is needed
-        if (string.contains(CsvUtils.DOUBLE_QUOTE_STRING) || string.contains(delimiter.toString())
-            || string.contains(lineSeparator)) {
-            string = CsvUtils.DOUBLE_QUOTE + string + CsvUtils.DOUBLE_QUOTE;
+        if (text.contains(CsvUtils.DOUBLE_QUOTE_STRING) || text.contains(delimiter.toString())
+                || text.contains(lineSeparator)) {
+            text = CsvUtils.DOUBLE_QUOTE + text + CsvUtils.DOUBLE_QUOTE;
         }
-        return string;
+        return text;
     }
 
 }

@@ -139,7 +139,7 @@ class CsvReaderImpl<T> implements CsvReader<T> {
         } while (recheckFlag);
 
         return cells.stream().map(cell -> isInQuote(cell) ? removeQuotes(cell) : cell)
-            .map(CsvReaderImpl::removeSkippingQuotes).collect(Collectors.toList());
+                .map(CsvReaderImpl::removeSkippingQuotes).collect(Collectors.toList());
     }
 
     private static String removeSkippingQuotes(String line) {
@@ -160,7 +160,7 @@ class CsvReaderImpl<T> implements CsvReader<T> {
      */
     private static boolean isInQuote(String line) {
         return line != null && line.startsWith(CsvUtils.DOUBLE_QUOTE_STRING) && line.endsWith(
-            CsvUtils.DOUBLE_QUOTE_STRING);
+                CsvUtils.DOUBLE_QUOTE_STRING);
     }
 
 }
