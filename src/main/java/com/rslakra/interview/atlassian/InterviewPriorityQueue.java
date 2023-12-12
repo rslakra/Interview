@@ -1,5 +1,7 @@
 package com.rslakra.interview.atlassian;
 
+import com.rslakra.interview.core.Pair;
+
 import java.util.Optional;
 import java.util.PriorityQueue;
 
@@ -9,36 +11,18 @@ import java.util.PriorityQueue;
  */
 public class InterviewPriorityQueue implements MostPopular {
 
-    final class Pair implements Comparable<Pair> {
-
-        private Integer contentId;
-        private int count;
-
-        Pair(Integer contentId, int count) {
-            this.contentId = contentId;
-            this.count = count;
-        }
-
-        @Override
-        public int compareTo(Pair pair) {
-            return (pair.count - count); // max heap
-        }
-
-        @Override
-        public String toString() {
-            return (String.format("%d (%d)", contentId, count));
-        }
-    }
-
     private PriorityQueue<Pair> queue = new PriorityQueue<>();
 
     @Override
     public void increasePopularity(Integer contentId) {
-        Optional<Pair> pairOptional = queue.stream().filter(p -> p.contentId == contentId).findFirst();
+        Optional<Pair> pairOptional = queue.stream()
+            .filter(p -> p.getContentId() == contentId)
+            .findFirst();
+
         if (pairOptional.isPresent()) {
             Pair pair = pairOptional.get();
             queue.remove(pair);
-            pair.count++;
+            pair.setCount(pair.getCount() + 1);
             queue.add(pair);
         } else {
             queue.add(new Pair(contentId, 1));
@@ -49,43 +33,50 @@ public class InterviewPriorityQueue implements MostPopular {
     @Override
     public Integer mostPopular() {
         Pair pair = queue.peek();
-        System.out.println(queue);
-        System.out.println(pair);
-        if (pair.count <= 0) {
+        if (pair.getCount() <= 0) {
             return -1;
         }
 
-        return pair.contentId;
+        return pair.getContentId();
     }
 
     @Override
     public void decreasePopularity(Integer contentId) {
-        Optional<Pair> pairOptional = queue.stream().filter(p -> p.contentId == contentId).findFirst();
+        Optional<Pair> pairOptional = queue.stream()
+            .filter(p -> p.getContentId() == contentId)
+            .findFirst();
         if (pairOptional.isPresent()) {
             Pair pair = pairOptional.get();
             queue.remove(pair);
-            pair.count--;
+            pair.setCount(pair.getCount() - 1);
             queue.add(pair);
         } else {
             queue.add(new Pair(contentId, 0));
         }
     }
 
+    /**
+     * @param args
+     */
     public static void main(String[] args) {
-        InterviewPriorityQueue popularityTracker = new InterviewPriorityQueue();
-        popularityTracker.increasePopularity(7);
-        popularityTracker.increasePopularity(7);
-        popularityTracker.increasePopularity(8);
-        System.out.println(popularityTracker.mostPopular());        // returns 7
-        popularityTracker.increasePopularity(8);
-        popularityTracker.increasePopularity(8);
-        System.out.println(popularityTracker.mostPopular());        // returns 8
-        popularityTracker.decreasePopularity(8);
-        popularityTracker.decreasePopularity(8);
-        System.out.println(popularityTracker.mostPopular());        // returns 7
-        popularityTracker.decreasePopularity(7);
-        popularityTracker.decreasePopularity(7);
-        popularityTracker.decreasePopularity(8);
-        System.out.println(popularityTracker.mostPopular());        // returns -1 since there is no content with popularity greater than 0
+        MostPopular instance = new InterviewPriorityQueue();
+        instance.increasePopularity(7);
+        instance.increasePopularity(7);
+        instance.increasePopularity(8);
+        // returns 7
+        System.out.println(instance.mostPopular());
+        instance.increasePopularity(8);
+        instance.increasePopularity(8);
+        // returns 8
+        System.out.println(instance.mostPopular());
+        instance.decreasePopularity(8);
+        instance.decreasePopularity(8);
+        // returns 7
+        System.out.println(instance.mostPopular());
+        instance.decreasePopularity(7);
+        instance.decreasePopularity(7);
+        instance.decreasePopularity(8);
+        // returns -1 since there is no content with popularity greater than 0
+        System.out.println(instance.mostPopular());
     }
 }
