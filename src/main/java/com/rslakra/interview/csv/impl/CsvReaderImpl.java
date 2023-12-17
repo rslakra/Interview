@@ -1,5 +1,8 @@
-package com.rslakra.interview.csv;
+package com.rslakra.interview.csv.impl;
 
+import com.rslakra.interview.csv.CsvLine;
+import com.rslakra.interview.csv.CsvReader;
+import com.rslakra.interview.csv.CsvUtils;
 import com.rslakra.interview.utils.Utils;
 
 import java.io.File;
@@ -13,37 +16,62 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class CsvReaderImpl<T> implements CsvReader<T> {
+public class CsvReaderImpl<T> extends AbstractCsvImpl<T> implements CsvReader<T> {
 
     private String content;
-    private boolean includeFirstLine = true;
-    private boolean includeLastLine = true;
+    private boolean includeHeaders = true;
+    private boolean includeFooters = true;
     private Function<CsvLine, T> mapper;
-    private Character delimiter = CsvUtils.DEFAULT_DELIMITER;
-    private String lineSeparator = CsvUtils.DEFAULT_LINE_SEPARATOR;
-    private Predicate<String> csvLineFilter = e -> true;
+    private Predicate<String> filterLines = e -> true;
 
+
+    /**
+     * @param delimiter
+     * @param lineSeparator
+     */
+    public CsvReaderImpl(String delimiter, String lineSeparator) {
+        super(delimiter, lineSeparator);
+    }
+
+    /**
+     * @param delimiter
+     */
+    public CsvReaderImpl(String delimiter) {
+        super(delimiter);
+    }
+
+    /**
+     *
+     */
+    public CsvReaderImpl() {
+        super();
+    }
+
+    /**
+     * @param delimiter
+     * @return
+     */
     @Override
-    public CsvReader<T> delimiter(char delimiter) {
-        this.delimiter = delimiter;
+    public CsvReader<T> delimiter(String delimiter) {
+        setDelimiter(delimiter);
         return this;
     }
 
     @Override
     public CsvReader<T> lineSeparator(String lineSeparator) {
-        this.lineSeparator = lineSeparator;
+        setLineSeparator(lineSeparator);
         return this;
     }
 
     @Override
-    public CsvReader<T> includeFirstLine(boolean includeFirstLine) {
-        this.includeFirstLine = includeFirstLine;
+    public CsvReader<T> includeHeaders(boolean includeHeaders) {
+        this.includeHeaders = includeHeaders;
         return this;
     }
 
     @Override
-    public CsvReader<T> includeLastLine(boolean includeLastLine) {
-        this.includeLastLine = includeLastLine;
+    public CsvReader<T> includeFooters(boolean includeFooters) {
+        this.includeFooters = includeFooters;
         return this;
     }
 
@@ -70,16 +98,16 @@ class CsvReaderImpl<T> implements CsvReader<T> {
     }
 
     @Override
-    public CsvReader<T> csvLineFilter(Predicate<String> filter) {
+    public CsvReader<T> filterLines(Predicate<String> filter) {
         if (filter != null) {
-            csvLineFilter = filter;
+            filterLines = filter;
         }
         return this;
     }
 
     @Override
     public List<T> read() {
-        if (Utils.isEmpty(lineSeparator)) {
+        if (Utils.isEmpty(getLineSeparator())) {
             throw new IllegalArgumentException("line separator cannot be empty, must provide a valid line separator");
         }
 
@@ -87,11 +115,15 @@ class CsvReaderImpl<T> implements CsvReader<T> {
             throw new IllegalArgumentException("line reader cannot be null");
         }
 
-        return splitLines().stream().map(this::splitCells).map(CsvLine::new).map(mapper).collect(Collectors.toList());
+        return splitLines().stream()
+                .map(this::splitCells)
+                .map(CsvLine::new)
+                .map(mapper)
+                .collect(Collectors.toList());
     }
 
     private List<String> splitLines() {
-        List<String> lines = Stream.of(content.split(lineSeparator)).collect(Collectors.toList());
+        List<String> lines = Stream.of(content.split(getLineSeparator())).collect(Collectors.toList());
 
         boolean recheckFlag;
 
@@ -102,7 +134,7 @@ class CsvReaderImpl<T> implements CsvReader<T> {
                 if (Utils.getCount(line, CsvUtils.DOUBLE_QUOTE) % 2 == 1) {
                     itr.remove();
                     String nextLine = itr.next();
-                    itr.set(line + lineSeparator + nextLine);
+                    itr.set(line + getLineSeparator() + nextLine);
                     recheckFlag = true;
                     // break for loop, redo the checking from the beginning
                     break;
@@ -110,18 +142,24 @@ class CsvReaderImpl<T> implements CsvReader<T> {
             }
         } while (recheckFlag);
 
-        if (!includeFirstLine) {
+        if (!includeHeaders) {
             lines.remove(0);
         }
-        if (!includeLastLine) {
+        if (!includeFooters) {
             lines.remove(lines.size() - 1);
         }
 
-        return lines.stream().filter(csvLineFilter).collect(Collectors.toList());
+        return lines.stream()
+                .filter(filterLines)
+                .collect(Collectors.toList());
     }
 
+    /**
+     * @param line
+     * @return
+     */
     private List<String> splitCells(String line) {
-        List<String> cells = Stream.of(line.split(delimiter.toString())).collect(Collectors.toList());
+        List<String> cells = Stream.of(line.split(getDelimiter().toString())).collect(Collectors.toList());
 
         boolean recheckFlag;
         do {
@@ -131,36 +169,17 @@ class CsvReaderImpl<T> implements CsvReader<T> {
                 if (Utils.getCount(cell, CsvUtils.DOUBLE_QUOTE) % 2 == 1) {
                     itr.remove();
                     String nextCell = itr.next();
-                    itr.set(cell + delimiter + nextCell);
+                    itr.set(cell + getDelimiter() + nextCell);
                     recheckFlag = true;
                     break;
                 }
             }
         } while (recheckFlag);
 
-        return cells.stream().map(cell -> isInQuote(cell) ? removeQuotes(cell) : cell)
-                .map(CsvReaderImpl::removeSkippingQuotes).collect(Collectors.toList());
-    }
-
-    private static String removeSkippingQuotes(String line) {
-        return line.replace(CsvUtils.DOUBLE_QUOTE_STRING + CsvUtils.DOUBLE_QUOTE_STRING, CsvUtils.DOUBLE_QUOTE_STRING);
-    }
-
-    /**
-     * @param line
-     * @return
-     */
-    private static String removeQuotes(String line) {
-        return line.substring(1, line.length() - 1);
-    }
-
-    /**
-     * @param line
-     * @return
-     */
-    private static boolean isInQuote(String line) {
-        return line != null && line.startsWith(CsvUtils.DOUBLE_QUOTE_STRING) && line.endsWith(
-                CsvUtils.DOUBLE_QUOTE_STRING);
+        return cells.stream()
+                .map(cell -> CsvUtils.isInQuote(cell) ? CsvUtils.removeQuotes(cell) : cell)
+                .map(CsvUtils::removeSkippingQuotes)
+                .collect(Collectors.toList());
     }
 
 }

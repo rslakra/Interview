@@ -1,5 +1,7 @@
-package com.rslakra.interview.csv;
+package com.rslakra.interview.csv.impl;
 
+import com.rslakra.interview.csv.CsvUtils;
+import com.rslakra.interview.csv.CsvWriter;
 import com.rslakra.interview.utils.Utils;
 
 import java.util.Collection;
@@ -8,65 +10,75 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class CsvWriterImpl<T> implements CsvWriter<T> {
+public class CsvWriterImpl<T> extends AbstractCsvImpl<T> implements CsvWriter<T> {
 
     private final Collection<T> content;
     private List<Object> header;
     private List<Object> footer;
     private Function<T, List<Object>> mapper;
-    private Character delimiter = CsvUtils.DEFAULT_DELIMITER;
-    private String lineSeparator = CsvUtils.DEFAULT_LINE_SEPARATOR;
 
-    CsvWriterImpl(Collection<T> content) {
+    /**
+     * @param content
+     */
+    public CsvWriterImpl(Collection<T> content) {
+        super();
         this.content = content;
     }
 
+    /**
+     * @param delimiter
+     * @return
+     */
     @Override
-    public CsvWriterImpl<T> delimiter(char delimiter) {
-        this.delimiter = delimiter;
+    public CsvWriter<T> delimiter(String delimiter) {
+        setDelimiter(delimiter);
+        return this;
+    }
+
+    /**
+     * @param lineSeparator
+     * @return
+     */
+    @Override
+    public CsvWriter<T> lineSeparator(String lineSeparator) {
+        setLineSeparator(lineSeparator);
         return this;
     }
 
     @Override
-    public CsvWriterImpl<T> lineSeparator(String lineSeparator) {
-        this.lineSeparator = lineSeparator;
-        return this;
-    }
-
-    @Override
-    public CsvWriterImpl<T> header(Object... headers) {
+    public CsvWriter<T> header(Object... headers) {
         return header(Stream.of(headers).collect(Collectors.toList()));
     }
 
     @Override
-    public CsvWriterImpl<T> header(List<Object> headers) {
+    public CsvWriter<T> header(List<Object> headers) {
         header = headers;
         return this;
     }
 
     @Override
-    public CsvWriterImpl<T> footer(Object... footers) {
+    public CsvWriter<T> footer(Object... footers) {
         return footer(Stream.of(footers).collect(Collectors.toList()));
     }
 
     @Override
-    public CsvWriterImpl<T> footer(List<Object> footers) {
+    public CsvWriter<T> footer(List<Object> footers) {
         footer = footers;
         return this;
     }
 
     @Override
-    public CsvWriterImpl<T> mapper(Function<T, List<Object>> mapper) {
+    public CsvWriter<T> mapper(Function<T, List<Object>> mapper) {
         this.mapper = mapper;
         return this;
     }
 
     @Override
     public String generate() {
-        if (delimiter == null) {
+        if (getDelimiter() == null) {
             throw new IllegalArgumentException("delimiter cannot be null");
         }
-        if (Utils.isEmpty(lineSeparator)) {
+        if (Utils.isEmpty(getLineSeparator())) {
             throw new IllegalArgumentException("lineSeparator cannot be null");
         }
         if (mapper == null) {
@@ -75,7 +87,7 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
 
         return Stream.of(csvLine(header), contentToCsvLines(), csvLine(footer))
                 .filter(Utils::isNotEmpty)
-                .collect(Collectors.joining(lineSeparator));
+                .collect(Collectors.joining(getLineSeparator()));
     }
 
     private String csvLine(List<?> content) {
@@ -85,7 +97,7 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
         return content.stream()
                 .map(Object::toString)
                 .map(this::csvCell)
-                .collect(Collectors.joining(delimiter.toString()));
+                .collect(Collectors.joining(getDelimiter().toString()));
     }
 
     private String contentToCsvLines() {
@@ -95,7 +107,7 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
         return content.stream()
                 .map(mapper)
                 .map(this::csvLine)
-                .collect(Collectors.joining(lineSeparator));
+                .collect(Collectors.joining(getLineSeparator()));
     }
 
     /**
@@ -111,10 +123,10 @@ class CsvWriterImpl<T> implements CsvWriter<T> {
                 CsvUtils.DOUBLE_QUOTE_STRING + CsvUtils.DOUBLE_QUOTE_STRING);
 
         // check if double_quote is needed
-        if (text.contains(CsvUtils.DOUBLE_QUOTE_STRING) || text.contains(delimiter.toString())
-                || text.contains(lineSeparator)) {
+        if (CsvUtils.contains(text, CsvUtils.DOUBLE_QUOTE_STRING, getDelimiter(), getLineSeparator())) {
             text = CsvUtils.DOUBLE_QUOTE + text + CsvUtils.DOUBLE_QUOTE;
         }
+
         return text;
     }
 

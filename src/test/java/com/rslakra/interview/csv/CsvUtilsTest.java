@@ -45,24 +45,20 @@ public class CsvUtilsTest {
     @Test
     public void demoReader() throws Exception {
         File file = Paths.get(ClassLoader.getSystemResource("items.csv").toURI()).toFile();
-
         List<Item> items = CsvUtils.buildReader(Item.class)
-            // content of file; or you can use content(String) to give the content of csv as
-            // a String
+            /* content of file; or you can use content(String) to give the content of csv as a String */
             .content(file)
-            .delimiter(';')
-            // false to not include the first line; because we don't want to parse the
-            // header
-            .includeFirstLine(false)
-            // false to not include the last line; because we don't want to parse the footer
-            .includeLastLine(false)
-            // mapper to create the Item instance from the given line, line is
-            // ArrayList<String> that returns null if index not found
+            /* delimiter; */
+            .delimiter(";")
+            /* false to not include the headers; because we don't want to parse the header */
+            .includeHeaders(false)
+            /* false to not include the footer; because we don't want to parse the footer */
+            .includeFooters(false)
+            /* mapper to create the Item instance from the given line, line is ArrayList<String> that returns null if index not found */
             .mapper(line -> new Item(line.get(0), Item.parsePrice(line.get(1))))
-            // if you want filter the lines before start parsing, so only the lines that
-            // passes the filter will be parsed
-            // .csvLineFilter(line -> line.startsWith("riz"))
-            // finally we call read() to parse the file (or the content)
+            /* if you want filter the lines before start parsing, so only the lines that passes the filter will be parsed */
+//            .filterLines(line -> line.startsWith("lak"))
+            /* finally we call read() to parse the file (or the content) */
             .read();
 
         assertNotNull(items);
