@@ -52,7 +52,7 @@ jobs:
         run: mvn --batch-mode --update-snapshots verify
 
       # Run the Maven 'verify' phase
-      - name: Make Staging Dir & Copy .jar file
+      - name: Release .jar Build file
         run: mkdir releases && cp target/*.jar releases
 
       # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
