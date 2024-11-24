@@ -1,17 +1,13 @@
 package com.rslakra.interview.fico;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * @author Rohtash Lakra
@@ -44,7 +40,7 @@ public class FacebookLoginTest {
         return "OK";
     }
 
-    static class Response() {
+    static class Response {
         String id;
         String status;
 
@@ -57,18 +53,15 @@ public class FacebookLoginTest {
     static Map<String, Response> responses = new HashMap<>();
 
     //facebook.login
-
     @Test(dataProvider = "loginData")
     public void testLoginSuccess(String username, String password, String expected) {
         try {
             String result = login(username, password);
             responses.put(username, new Response(username, result));
-        }catch (RuntimeException ex) {
+            assertEquals(expected, result);
+        } catch (RuntimeException ex) {
             responses.put(username, new Response(username, ex.toString()));
         }
-
-
-        assertEquals(expected, result);
     }
 
 
