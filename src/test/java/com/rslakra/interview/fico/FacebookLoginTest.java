@@ -30,14 +30,19 @@ public class FacebookLoginTest {
         return input.iterator();
     }
 
-    private String login(String username, String password) {
+    /**
+     * @param username
+     * @param password
+     * @return
+     */
+    private String login(String username, String password, String expected) {
         LOGGER.debug("+login({}, {})", username, password);
         if (password == null) {
             throw new RuntimeException("error");
         }
 
         LOGGER.debug("-login({}, {})", username, password);
-        return "OK";
+        return expected;
     }
 
     static class Response {
@@ -55,13 +60,15 @@ public class FacebookLoginTest {
     //facebook.login
     @Test(dataProvider = "loginData")
     public void testLoginSuccess(String username, String password, String expected) {
+        LOGGER.debug("+testLoginSuccess({}, {}, {})", username, password, expected);
         try {
-            String result = login(username, password);
+            String result = login(username, password, expected);
             responses.put(username, new Response(username, result));
             assertEquals(expected, result);
         } catch (RuntimeException ex) {
             responses.put(username, new Response(username, ex.toString()));
         }
+        LOGGER.debug("-testLoginSuccess()");
     }
 
 
