@@ -1,0 +1,65 @@
+# This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+name: Java Build with Maven
+
+on:
+  push:
+    branches: [ "master" ]
+
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  NAME: Rohtash
+  ENV_TYPE: develop
+
+jobs:
+  build:
+    env:
+      JDK_VERSION: '21'
+
+    runs-on: ubuntu-latest
+
+    # Steps
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print Environment Variables
+        run: |
+          echo "Hello, ${NAME}"
+          echo "envType=${ENV_TYPE}"
+          echo "JDK Version${{env.JDK_VERSION}}"
+      - name: Set up JDK ${{env.JDK_VERSION}}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{env.JDK_VERSION}}
+          distribution: 'temurin'
+          architecture: x64
+          cache: maven
+          check-for-updates: 'true'
+
+      # Build with Maven
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      # Run the Maven 'verify' phase
+      - name: Run the Maven verify phase
+        run: mvn --batch-mode --update-snapshots verify
+
+      # Run the Maven 'verify' phase
+      - name: Release .jar Build file
+        run: mkdir releases && cp target/*.jar releases
+
+      # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
+#      - name: Update Dependency Snapshot
+#        uses: advanced-security/maven-dependency-submission-action@v3
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Package
+          path: releases

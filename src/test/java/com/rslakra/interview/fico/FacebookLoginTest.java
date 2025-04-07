@@ -33,6 +33,7 @@ public class FacebookLoginTest {
     /**
      * @param username
      * @param password
+     * @param expected
      * @return
      */
     private String login(String username, String password, String expected) {
