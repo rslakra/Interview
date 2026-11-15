@@ -26,6 +26,11 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    # the Maven projects live under Java/ (the artifact path below is relative to the repository root)
+    defaults:
+      run:
+        working-directory: Java
+
     # Steps
     steps:
       - uses: actions/checkout@v4
@@ -62,4 +67,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: Package
-          path: releases
+          path: Java/releases

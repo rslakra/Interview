@@ -2,12 +2,12 @@
 
 ---
 
-Each interview is a separate Maven module that can be built and run on its own. Code that isn't specific to one
-interview lives in `Common`.
+All the code lives under [`Java/`](Java). Each interview is a separate Maven module that can be built and run on its
+own. Code that isn't specific to one interview lives in `Common`.
 
 | Module      | Contents                                                                                            |
 |-------------|-----------------------------------------------------------------------------------------------------|
-| `Common`    | Shared code: CSV reader/writer, `Utils`, shapes (`common`) and the default `logback.xml`              |
+| `Common`    | Shared code: CSV reader/writer, `Utils`, shapes (`common`) and the default `logback.xml`            |
 | `Atlassian` | Most popular content (`InterviewMap`, `InterviewPriorityQueue`, `Interview`, `Pair`)                |
 | `Finfare`   | Transaction log processing (`Finfare`)                                                              |
 | `Walmart`   | Max distance between flowers (`FindMaxDistanceBetweenFlowers`)                                      |
@@ -17,9 +17,11 @@ Atlassian, Finfare, Walmart and Fico depend on `Common`.
 
 # Usage
 
-Run these from this directory. `-am` also builds `Common`, so nothing has to be installed first.
+Run these from the `Java` directory. `-am` also builds `Common`, so nothing has to be installed first.
 
 ```shell
+cd Java
+
 # build and test everything
 mvn clean verify
 
@@ -39,7 +41,8 @@ mvn -q -pl Atlassian -am compile exec:java -Dexec.mainClass=com.rslakra.intervie
 The parent and every module have a Makefile (`make help` lists the targets). `REVISION` defaults to `0.0.0`.
 
 ```shell
-# from this directory
+# from the Java directory
+cd Java
 make build                  # build every module without tests
 make test                   # test every module
 make test-Walmart           # one module, delegates to Walmart/Makefile
